@@ -16,6 +16,7 @@ resp.encoding = "utf-8"
 
 #Print webpage content
 print(resp.text)
+```
 
 What I learned:
 1. Basic usage of the requests library
