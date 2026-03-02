@@ -4,7 +4,7 @@ Today's learning goals:
 - Save the webpage to a local file
 
 Codes:
-'''python
+```python
 from urllib.request import urlopen
 
 # Send a request to fetch the webpage
@@ -16,7 +16,7 @@ with open("mygoogle.html", mode="w", encoding="utf-8") as f:
     f.write(resp.read().decode("utf-8"))
     
 print("Web page saved successfully！Document name：mygoogle.html")
-'''
+```
 
 What learned today:
 1. The difference between urllib and requests
