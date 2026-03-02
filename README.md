@@ -30,10 +30,10 @@ requests:
 - More powerful (session, proxy, etc.)
 
 2. The 'golden partner' for file manipulation
-'''python
+```python
 with open("file name", mode, encoding) as f:
     f.write(content)
-'''
+```
 with: Automatic file management switch, no need to manually f. close()
 mode="w": Write mode, if the file exists, it will overwrite
 encoding="utf-8": Specify the code to avoid garbled characters
