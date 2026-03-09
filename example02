@@ -1,0 +1,76 @@
+import requests
+import re
+import time
+
+url = "https://www.dytt8899.com"
+headers = {
+    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36"
+}
+
+resp = requests.get(url, headers=headers)
+resp.encoding = "gbk"
+print("✅ Main page loaded")
+
+obj1 = re.compile(r"2026必看热片.*?<ul>(?P<html>.*?)</ul>", re.S)
+result1 = obj1.search(resp.text)
+
+if not result1:
+    print("❌ Could not find '2026 Must-Watch Movies' section")
+    exit()
+
+html = result1.group("html")
+print("✅ Found movie list section")
+
+obj2 = re.compile(r"<li><a href='(?P<href>.*?)' title")
+result2 = obj2.finditer(html)
+
+obj3 = re.compile(r'<div id="Zoom">.*?◎片　　名(?P<movie>.*?)<br />.*?<td style="WORD-WRAP: break-word"'
+                  r' bgcolor="#fdfddf"><a href="(?P<download_link>.*?)">', re.S)
+
+success_count = 0
+fail_count = 0
+movie_data = []
+
+for item in result2:
+    child_url = url.rstrip('/') + item.group("href")
+    print(f"\n🔗 Visiting: {child_url}")
+    
+    try:
+        child_resp = requests.get(child_url, headers=headers, timeout=10)
+        child_resp.encoding = "gbk"
+        
+        result3 = obj3.search(child_resp.text)
+        
+        if result3:
+            movie = result3.group("movie")
+            download_link = result3.group("download_link")
+            
+            print(f"  ✅ Success: {movie}")
+            print(f"     Download: {download_link}")
+            
+            movie_data.append({
+                "name": movie,
+                "download": download_link,
+                "url": child_url
+            })
+            success_count += 1
+        else:
+            print(f"  ❌ Failed: Could not extract movie info")
+            # Optional: Save failed page for debugging
+            with open(f"debug_failed_{success_count+1}.html", "w", encoding="gbk") as f:
+                f.write(child_resp.text[:2000])
+            fail_count += 1
+            
+    except requests.exceptions.RequestException as e:
+        print(f"  ❌ Request failed: {e}")
+        fail_count += 1
+    except Exception as e:
+        print(f"  ❌ Unexpected error: {e}")
+        fail_count += 1
+    
+    time.sleep(3)
+
+print("\n" + "="*50)
+print(f"📊 SCRAPING COMPLETE")
+print(f"✅ Successfully extracted: {success_count} movies")
+print(f"❌ Failed: {fail_count} pages")
